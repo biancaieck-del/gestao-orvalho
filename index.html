@@ -46,7 +46,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
 .sb-logo img{width:140px;height:auto;display:block}
 .sb-logo small{color:rgba(255,255,255,.45);font-size:9px;letter-spacing:2px;text-transform:uppercase;display:block;margin-top:2px}
 .sb-nav{flex:1;padding:10px 10px}
-.sb-sec{font-size:9px;color:rgba(255,255,255,.75);padding:12px 8px 4px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600}
+.sb-sec{font-size:9px;color:rgba(255,255,255,.92);padding:12px 8px 4px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600}
 .ni{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:7px;color:rgba(255,255,255,.7);font-size:13px;cursor:pointer;transition:all .15s;border:none;background:none;width:100%;text-align:left;margin-bottom:1px}
 .ni:hover{background:rgba(255,255,255,.08);color:#fff}
 .ni.act{background:rgba(154,191,74,.2);color:#9abf4a;font-weight:600}
@@ -69,11 +69,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
 .kcard{background:#fff;border-radius:var(--r);border:1px solid var(--bd);padding:14px;box-shadow:var(--sh)}
 .kcard.accent{background:var(--vd);border-color:var(--vd)}
 .kl{font-size:10px;color:var(--txl);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-.accent .kl{color:rgba(255,255,255,.55)}
+.accent .kl{color:rgba(255,255,255,.85)}
 .kv{font-size:22px;font-weight:700;color:var(--vd);font-family:'Playfair Display',serif}
-.accent .kv{color:#9abf4a}
+.accent .kv{color:#ffffff}
 .ks{font-size:10.5px;color:var(--txl);margin-top:2px}
-.accent .ks{color:rgba(255,255,255,.5)}
+.accent .ks{color:rgba(255,255,255,.6)}
 /* CARD */
 .card{background:#fff;border-radius:var(--r);border:1px solid var(--bd);padding:16px;margin-bottom:13px;box-shadow:var(--sh)}
 .card-title{font-size:12px;font-weight:700;color:var(--txl);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px}
@@ -189,8 +189,9 @@ const ESTADOS=['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG',
 const ETAPAS_PAD=['Visita Técnica em Campo','Análise de Dados','Elaboração de Mapas','Elaboração do Laudo / Relatório','Protocolo do Processo','Acompanhamento do Processo','Aguardando Análise do Cliente','Revisão e Ajustes – Cliente','Revisão e Ajustes – Órgão Ambiental','Emissão de ART / RRT','Coleta de Assinaturas','Entrega Final ao Cliente','Outra'];
 const CF_DEF=[{id:1,nome:'Canva',valor:35.90,tipo:'mensal'},{id:2,nome:'CRBio',valor:850,tipo:'anual'},{id:3,nome:'Luz',valor:30,tipo:'mensal'},{id:4,nome:'Hospedagem do site e manutenção',valor:50,tipo:'mensal'},{id:5,nome:'Contabilidade',valor:248,tipo:'mensal'},{id:6,nome:'Internet',valor:30,tipo:'mensal'},{id:7,nome:'Taxa de licenciamento (alvará)',valor:27,tipo:'mensal'}];
 const CV_TIPOS=['Tráfego pago – Redes Sociais','Google Ads – Site','Material de escritório','Folder','Impressões','Cartões de visita','Equipamentos','Outro'];
-const SERVICOS_LEADS=['Levantamento de Fauna','Levantamento de Flora','Estudo de Impacto de Vizinhança','Estudo de Viabilidade Ambiental','Licença/Autorização Motosserra IBAMA','Autorização Manejo e Resgate de Fauna IBAMA','Levantamento Florístico / Inventário Florestal','Outro'];
+const SERVICOS_LEADS=['Autorização Manejo e Resgate de Fauna IBAMA','Educação Ambiental','Estudo de Impacto de Vizinhança','Estudo de Viabilidade Ambiental','Homologação de Fornecedores','Levantamento de Fauna','Levantamento de Flora','Levantamento Florístico / Inventário Florestal','Licença/Autorização Motosserra IBAMA','Palestra Ambiental - Corporativo','Palestra Ambiental - Escolas','Treinamento Ambiental','Treinamento Legislação Ambiental e Afugentamento e Resgate de Fauna','Outro'];
 const ORIGENS_LEAD=['Indicação','Redes sociais','Panfletagem','E-mail marketing','Site/Google','Prospecção ativa','Outro'];
+const REDES_SOCIAIS=['Facebook','Instagram'];
 const TIPO_OCO=['Reunião','Solicitação do cliente','Problema em campo','Comunicação com órgão ambiental','Mudança de escopo','Prorrogação de prazo','Outro'];
 const RESULTADO_REM=['Sem resposta','Interessado','Não tem interesse','Reunião agendada','Pediu retorno'];
 const TIPO_REM=['E-mail enviado','Ligação','WhatsApp','Visita'];
@@ -311,7 +312,7 @@ function App(){
               <div style={{color:'#fff',fontSize:13,fontFamily:'Playfair Display,serif',fontWeight:700,lineHeight:1.3}}>Orvalho Consultoria Ambiental</div>
             </div>
           </div>
-          <div style={{color:'rgba(255,255,255,.55)',fontSize:9,letterSpacing:1.8,textTransform:'uppercase'}}>Sistema de Gestão</div>
+          <div style={{color:'rgba(255,255,255,.92)',fontSize:9,letterSpacing:1.8,textTransform:'uppercase'}}>Sistema de Gestão</div>
         </div>
         <nav className="sb-nav">
           {secs.map(sec=>(
@@ -378,34 +379,45 @@ function Login(){
 // ── DASHBOARD ────────────────────────────────────────────────────
 function Dashboard({propostas,projetos,leads,custosFix,custosVar,setPage}){
   const ap=propostas.filter(p=>p.status==='aprovada');
-  const en=propostas.filter(p=>p.status==='enviada');
+  const en=propostas.filter(p=>['enviada','aprovada','reprovada'].includes(p.status));
   const fat=ap.reduce((s,p)=>s+(p.budget?.total||0),0);
-  const tx=en.length+ap.length>0?Math.round(ap.length/(en.length+ap.length)*100):0;
+  const tx=en.length?Math.round(ap.length/en.length*100):0;
   const cfMes=custosFix.reduce((s,c)=>s+(c.tipo==='anual'?c.valor/12:c.valor),0);
-  const cvTotal=custosVar.reduce((s,c)=>s+(c.valor||0),0);
   const projAtivos=projetos.filter(p=>p.status==='andamento').length;
+  const projConcluidos=projetos.filter(p=>p.status==='concluido').length;
   const projAtrasados=projetos.filter(p=>p.status==='atrasado').length;
   const alertasProp=propostas.filter(p=>p.status==='enviada'&&p.sentAt&&daysDiff(p.sentAt,today())>=7);
   const alertasEtapa=projetos.flatMap(p=>(p.etapas||[]).filter(e=>e.status!=='concluida'&&e.dataPrev&&daysDiff(today(),e.dataPrev)<0).map(e=>({proj:p.nome,etapa:e.nome})));
-  // Dados mensais
   const fatMes=MESES.map((_,i)=>ap.filter(p=>new Date(p.date||'').getMonth()===i).reduce((s,p)=>s+(p.budget?.total||0),0));
   const maxFat=Math.max(...fatMes,1);
+  const origemCount={};leads.forEach(l=>{const o=l.origemRede?`${l.origem} (${l.origemRede})`:l.origem||'Não informado';origemCount[o]=(origemCount[o]||0)+1;});
+  const topOrigens=Object.entries(origemCount).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const svcCount={};leads.forEach(l=>(l.servicos||[]).forEach(s=>{svcCount[s]=(svcCount[s]||0)+1;}));
+  const topSvcs=Object.entries(svcCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const maxSvc=Math.max(...topSvcs.map(([,n])=>n),1);
+  const estCount={};leads.forEach(l=>{if(l.estado)estCount[l.estado]=(estCount[l.estado]||0)+1;});
+  const topEst=Object.entries(estCount).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const aReceber=projetos.reduce((s,p)=>(p.parcelas||[]).filter(x=>x.status!=='recebida').reduce((s2,x)=>s2+(x.valor||0),s),0);
+  const recebido=projetos.reduce((s,p)=>(p.parcelas||[]).filter(x=>x.status==='recebida').reduce((s2,x)=>s2+(x.valor||0),s),0);
 
   return(
     <div>
       {alertasProp.length>0&&<div className="al al-w">⚠️ {alertasProp.length} proposta(s) enviada(s) há mais de 7 dias sem resposta!</div>}
       {alertasEtapa.length>0&&<div className="al al-w">🔴 {alertasEtapa.length} etapa(s) atrasada(s) em projetos.</div>}
+
       <div className="kgrid">
         <div className="kcard accent"><div className="kl">Faturamento Aprovado</div><div className="kv">{fmtBRL(fat)}</div><div className="ks">{ap.length} proposta(s)</div></div>
+        <div className="kcard accent"><div className="kl">Já Recebido</div><div className="kv">{fmtBRL(recebido)}</div><div className="ks">de projetos</div></div>
+        <div className="kcard"><div className="kl">A Receber</div><div className="kv" style={{color:'#d97706'}}>{fmtBRL(aReceber)}</div><div className="ks">parcelas pendentes</div></div>
         <div className="kcard"><div className="kl">Taxa de Fechamento</div><div className="kv">{tx}%</div><div className="ks">{ap.length}/{en.length+ap.length} enviadas</div></div>
-        <div className="kcard"><div className="kl">Projetos Ativos</div><div className="kv">{projAtivos}</div><div className="ks">{projAtrasados} atrasado(s)</div></div>
-        <div className="kcard"><div className="kl">Leads Cadastrados</div><div className="kv">{leads.length}</div><div className="ks">{leads.filter(l=>l.tipo==='prospect').length} prospects</div></div>
-        <div className="kcard"><div className="kl">Custos Fixos/Mês</div><div className="kv" style={{fontSize:16}}>{fmtBRL(cfMes)}</div><div className="ks">Base mensal</div></div>
+        <div className="kcard"><div className="kl">Projetos Ativos</div><div className="kv">{projAtivos}</div><div className="ks">{projConcluidos} concluído(s)</div></div>
+        <div className="kcard"><div className="kl">Leads / Contatos</div><div className="kv">{leads.length}</div><div className="ks">{leads.filter(l=>l.tipo==='ativo').length} ativos</div></div>
+        <div className="kcard"><div className="kl">Custos Fixos/Mês</div><div className="kv" style={{fontSize:16}}>{fmtBRL(cfMes)}</div><div className="ks">base mensal</div></div>
       </div>
 
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:13,marginBottom:13}}>
+      <div style={{display:'grid',gridTemplateColumns:'1.4fr 1fr',gap:13,marginBottom:13}}>
         <div className="card" style={{margin:0}}>
-          <div className="card-title">Faturamento mensal (aprovado)</div>
+          <div className="card-title">Faturamento mensal aprovado</div>
           <div className="chart-bars">
             {fatMes.map((v,i)=>(
               <div key={i} className="chart-bar-w">
@@ -419,13 +431,58 @@ function Dashboard({propostas,projetos,leads,custosFix,custosVar,setPage}){
         <div className="card" style={{margin:0}}>
           <div className="card-title">Propostas por status</div>
           {Object.entries(ST_PROP).map(([k,v])=>{const n=propostas.filter(p=>p.status===k).length;return n>0?(
-            <div key={k} style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
-              <span className={`badge ${v.cls}`}>{v.l}</span>
+            <div key={k} style={{display:'flex',alignItems:'center',gap:8,marginBottom:7}}>
+              <span className={`badge ${v.cls}`} style={{minWidth:90,justifyContent:'center'}}>{v.l}</span>
               <div className="pb" style={{flex:1}}><div className="pf" style={{width:`${propostas.length?Math.round(n/propostas.length*100):0}%`,background:'#285d02'}}/></div>
               <span style={{fontSize:12,fontWeight:700,minWidth:20}}>{n}</span>
             </div>
           ):null;})}
-          {propostas.length===0&&<div className="empty"><div>Nenhuma proposta ainda</div></div>}
+          {propostas.length===0&&<div className="empty">Nenhuma proposta ainda</div>}
+        </div>
+      </div>
+
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:13,marginBottom:13}}>
+        <div className="card" style={{margin:0}}>
+          <div className="card-title">Serviços mais solicitados (leads)</div>
+          {topSvcs.length===0?<div className="empty" style={{padding:16}}>Nenhum lead ainda</div>:topSvcs.map(([s,n])=>(
+            <div key={s} style={{marginBottom:9}}>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:11.5,marginBottom:3}}>
+                <span style={{color:'var(--tx)',maxWidth:'80%',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{s}</span>
+                <span style={{fontWeight:700,color:'#285d02'}}>{n}</span>
+              </div>
+              <div className="pb"><div className="pf" style={{width:`${Math.round(n/maxSvc*100)}%`,background:'#285d02'}}/></div>
+            </div>
+          ))}
+        </div>
+        <div className="card" style={{margin:0}}>
+          <div className="card-title">Origem dos leads</div>
+          {topOrigens.length===0?<div className="empty" style={{padding:16}}>Nenhum lead ainda</div>:topOrigens.map(([o,n])=>(
+            <div key={o} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid var(--bd)',fontSize:12.5}}>
+              <span>{o}</span><span className="badge b-vd">{n}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:13,marginBottom:13}}>
+        <div className="card" style={{margin:0}}>
+          <div className="card-title">Leads por estado</div>
+          {topEst.length===0?<div className="empty" style={{padding:16}}>Nenhum lead ainda</div>:topEst.map(([e,n])=>(
+            <div key={e} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid var(--bd)',fontSize:12.5}}>
+              <span style={{fontWeight:600}}>{e}</span><span className="badge b-blue">{n} lead(s)</span>
+            </div>
+          ))}
+        </div>
+        <div className="card" style={{margin:0}}>
+          <div className="card-title">Projetos por status</div>
+          {Object.entries(ST_PROJ).map(([k,v])=>{const n=projetos.filter(p=>p.status===k).length;return(
+            <div key={k} style={{display:'flex',alignItems:'center',gap:8,marginBottom:7}}>
+              <span className={`dot ${v.dot}`}/>
+              <span style={{fontSize:12.5,flex:1}}>{v.l}</span>
+              <span style={{fontWeight:700,fontSize:13}}>{n}</span>
+            </div>
+          );})}
+          {projetos.length===0&&<div className="empty" style={{padding:16}}>Nenhum projeto ainda</div>}
         </div>
       </div>
 
@@ -447,7 +504,6 @@ function Dashboard({propostas,projetos,leads,custosFix,custosVar,setPage}){
     </div>
   );
 }
-
 // ── PROJETOS ─────────────────────────────────────────────────────
 function Projetos({projetos,setProjetos,propostas,leads,setPage}){
   const[show,setShow]=useState(false);
@@ -917,7 +973,7 @@ function Leads({leads,setLeads,setPage}){
   const[editId,setEditId]=useState(null);
   const[filtro,setFiltro]=useState({tipo:'',estado:'',busca:''});
   const[municipios,setMunicipios]=useState([]);
-  const blank={id:uid(),nome:'',fantasia:'',cnpjCpf:'',tipoCnpj:'cnpj',ramo:'',responsavel:'',data:today(),tipo:'prospect',servicos:[],email1:'',email2:'',tel1:'',tipTel1:'whatsapp',tel2:'',estado:'SC',municipio:'',origem:'',origemDesc:'',obs:''};
+  const blank={id:uid(),nome:'',fantasia:'',cnpjCpf:'',tipoCnpj:'cnpj',ramo:'',responsavel:'',data:today(),tipo:'contato',servicos:[],svcTema:'',svcOutro:'',email1:'',email2:'',tel1:'',tipTel1:'whatsapp',nomeTel1:'',tel2:'',tipTel2:'celular',nomeTel2:'',tel3:'',tipTel3:'fixo',nomeTel3:'',estado:'SC',municipio:'',origem:'',origemDesc:'',origemRede:'',obs:''};
   const[form,setForm]=useState(blank);
   const F=(k,v)=>setForm(f=>({...f,[k]:v}));
 
@@ -961,25 +1017,30 @@ function Leads({leads,setLeads,setPage}){
                 <div className="fg"><label className="fl">Responsável pelo orçamento *</label><input className="fc" value={form.responsavel||''} onChange={e=>F('responsavel',e.target.value)}/></div>
               </div>
               <div className="fr2">
-                <div className="fg"><label className="fl">Tipo</label><select className="fs" value={form.tipo} onChange={e=>F('tipo',e.target.value)}><option value="ativo">🟢 Lead Ativo</option><option value="prospect">🔵 Prospect</option></select></div>
+                <div className="fg"><label className="fl">Tipo</label><select className="fs" value={form.tipo} onChange={e=>F('tipo',e.target.value)}><option value="ativo">🟢 Lead Ativo</option><option value="contato">🔵 Contato</option></select></div>
                 <div className="fg"><label className="fl">Data de cadastro</label><input type="date" className="fc" value={form.data} onChange={e=>F('data',e.target.value)}/></div>
               </div>
               <div className="fg"><label className="fl">Serviços contratados / interesse</label>
                 <div style={{display:'flex',flexWrap:'wrap',gap:6,padding:'6px 0'}}>
-                  {SERVICOS_LEADS.map(s=><label key={s} style={{display:'flex',alignItems:'center',gap:5,fontSize:12,cursor:'pointer'}}><input type="checkbox" checked={(form.servicos||[]).includes(s)} onChange={()=>toggleSvc(s)}/>{s}</label>)}
+                  {SERVICOS_LEADS.map(s=>(<div key={s} style={{marginBottom:2}}><label style={{display:'flex',alignItems:'center',gap:5,fontSize:12,cursor:'pointer'}}><input type="checkbox" checked={(form.servicos||[]).includes(s)} onChange={()=>toggleSvc(s)}/>{s}</label>{s==='Treinamento Ambiental'&&(form.servicos||[]).includes(s)&&<input className="fc" style={{marginTop:3,fontSize:11.5}} value={form.svcTema||''} onChange={e=>F('svcTema',e.target.value)} placeholder="Qual tema do treinamento?"/>}{s==='Outro'&&(form.servicos||[]).includes(s)&&<input className="fc" style={{marginTop:3,fontSize:11.5}} value={form.svcOutro||''} onChange={e=>F('svcOutro',e.target.value)} placeholder="Qual serviço?"/>}</div>))}
                 </div>
               </div>
               <div className="fr2">
                 <div className="fg"><label className="fl">E-mail 1 (principal)</label><input type="email" className="fc" value={form.email1||''} onChange={e=>F('email1',e.target.value)}/></div>
                 <div className="fg"><label className="fl">E-mail 2</label><input type="email" className="fc" value={form.email2||''} onChange={e=>F('email2',e.target.value)}/></div>
               </div>
-              <div className="fr2">
-                <div className="fg"><label className="fl">Telefone 1</label>
-                  <div className="flex gap2"><select className="fs" style={{width:110}} value={form.tipTel1} onChange={e=>F('tipTel1',e.target.value)}><option value="whatsapp">WhatsApp</option><option value="celular">Celular</option><option value="fixo">Fixo</option></select>
-                  <input className="fc" value={form.tel1||''} onChange={e=>F('tel1',e.target.value)}/></div>
+              {/* Telefones */}
+              {[['1',form.tipTel1,'tipTel1',form.tel1,'tel1',form.nomeTel1,'nomeTel1'],['2',form.tipTel2,'tipTel2',form.tel2,'tel2',form.nomeTel2,'nomeTel2'],['3',form.tipTel3,'tipTel3',form.tel3,'tel3',form.nomeTel3,'nomeTel3']].map(([n,tip,tipK,tel,telK,nome,nomeK])=>(
+                <div key={n} style={{display:'grid',gridTemplateColumns:'110px 1fr 1fr',gap:8,marginBottom:8,alignItems:'end'}}>
+                  <div className="fg" style={{margin:0}}><label className="fl">{n==='1'?'Telefone 1':n==='2'?'Telefone 2':'Telefone 3'}</label>
+                    <select className="fs" value={tip||'whatsapp'} onChange={e=>F(tipK,e.target.value)}>
+                      <option value="whatsapp">WhatsApp</option><option value="celular">Celular</option><option value="fixo">Fixo</option>
+                    </select>
+                  </div>
+                  <div className="fg" style={{margin:0}}><label className="fl">Número</label><input className="fc" value={tel||''} onChange={e=>F(telK,e.target.value)} placeholder="(00) 00000-0000"/></div>
+                  <div className="fg" style={{margin:0}}><label className="fl">Nome do contato</label><input className="fc" value={nome||''} onChange={e=>F(nomeK,e.target.value)} placeholder="Ex: Gerente, Sócia..."/></div>
                 </div>
-                <div className="fg"><label className="fl">Telefone 2</label><input className="fc" value={form.tel2||''} onChange={e=>F('tel2',e.target.value)}/></div>
-              </div>
+              ))}
               <div className="fr2">
                 <div className="fg"><label className="fl">Estado</label><select className="fs" value={form.estado||'SC'} onChange={e=>{F('estado',e.target.value);F('municipio','');}}>{ESTADOS.map(s=><option key={s}>{s}</option>)}</select></div>
                 <div className="fg"><label className="fl">Município</label>
@@ -993,6 +1054,13 @@ function Leads({leads,setLeads,setPage}){
                 <div className="fg"><label className="fl">Origem do Lead</label>
                   <select className="fs" value={form.origem||''} onChange={e=>F('origem',e.target.value)}><option value="">Selecione</option>{ORIGENS_LEAD.map(o=><option key={o}>{o}</option>)}</select>
                 </div>
+                {form.origem==='Redes sociais'&&(
+                  <div className="fg"><label className="fl">Qual rede social?</label>
+                    <select className="fs" value={form.origemRede||''} onChange={e=>F('origemRede',e.target.value)}>
+                      <option value="">Selecione</option>{REDES_SOCIAIS.map(r=><option key={r}>{r}</option>)}
+                    </select>
+                  </div>
+                )}
                 {(form.origem==='Indicação'||form.origem==='Outro')&&<div className="fg"><label className="fl">{form.origem==='Indicação'?'Quem indicou?':'Qual origem?'}</label><input className="fc" value={form.origemDesc||''} onChange={e=>F('origemDesc',e.target.value)}/></div>}
               </div>
               <div className="fg"><label className="fl">Observações</label><textarea className="fta" rows={2} value={form.obs||''} onChange={e=>F('obs',e.target.value)}/></div>
@@ -1004,7 +1072,7 @@ function Leads({leads,setLeads,setPage}){
 
       <div className="flex gap2 aic" style={{marginBottom:14,flexWrap:'wrap'}}>
         <input className="fc" style={{maxWidth:220}} placeholder="🔍 Buscar empresa ou responsável..." value={filtro.busca} onChange={e=>setFiltro(f=>({...f,busca:e.target.value}))}/>
-        <select className="fs btn-sm" value={filtro.tipo} onChange={e=>setFiltro(f=>({...f,tipo:e.target.value}))}><option value="">Todos</option><option value="ativo">Lead Ativo</option><option value="prospect">Prospect</option></select>
+        <select className="fs btn-sm" value={filtro.tipo} onChange={e=>setFiltro(f=>({...f,tipo:e.target.value}))}><option value="">Todos</option><option value="ativo">Lead Ativo</option><option value="contato">Contato</option></select>
         <select className="fs btn-sm" value={filtro.estado} onChange={e=>setFiltro(f=>({...f,estado:e.target.value}))}><option value="">Todos estados</option>{ESTADOS.map(s=><option key={s}>{s}</option>)}</select>
         <span style={{fontSize:11.5,color:'var(--txl)'}}>{filtrados.length} lead(s)</span>
         <div style={{marginLeft:'auto'}}><button className="btn bp btn-sm" onClick={novo}>+ Novo Lead</button></div>
@@ -1062,7 +1130,7 @@ function Remarketing({leads,propostas,historico_rem,setHistorico_rem}){
       <div className="card" style={{marginBottom:14}}>
         <div className="card-title">🎯 Filtros de Segmentação</div>
         <div className="fr3" style={{marginBottom:10}}>
-          <div className="fg" style={{margin:0}}><label className="fl">Tipo</label><select className="fs" value={filtros.tipo} onChange={e=>setFiltros(f=>({...f,tipo:e.target.value}))}><option value="">Todos</option><option value="ativo">Lead Ativo</option><option value="prospect">Prospect</option></select></div>
+          <div className="fg" style={{margin:0}}><label className="fl">Tipo</label><select className="fs" value={filtros.tipo} onChange={e=>setFiltros(f=>({...f,tipo:e.target.value}))}><option value="">Todos</option><option value="ativo">Lead Ativo</option><option value="contato">Contato</option></select></div>
           <div className="fg" style={{margin:0}}><label className="fl">Estado</label><select className="fs" value={filtros.estado} onChange={e=>setFiltros(f=>({...f,estado:e.target.value}))}><option value="">Todos</option>{ESTADOS.map(s=><option key={s}>{s}</option>)}</select></div>
           <div className="fg" style={{margin:0}}><label className="fl">Serviço</label>
             <select className="fs" value={filtros.servico} onChange={e=>setFiltros(f=>({...f,servico:e.target.value}))}>
@@ -1205,7 +1273,7 @@ function Panfletagem({panfletagem,setPanfletagem,setLeads,leads}){
   },[form.estado]);
 
   const salvar=()=>{setPanfletagem(ps=>[{...form,id:uid()},...ps]);setShow(false);};
-  const salvarLead=r=>{setLeads(ls=>[{id:uid(),fantasia:r.nomeContato,nome:r.nomeContato,responsavel:r.nomeContato,email1:r.emailC,tel1:r.telC,tipTel1:'celular',estado:r.estado,municipio:r.municipio,tipo:'prospect',data:r.data,origem:'Panfletagem',servicos:[],obs:r.obs},...ls]);alert('✅ Lead salvo!');};
+  const salvarLead=r=>{setLeads(ls=>[{id:uid(),fantasia:r.nomeContato,nome:r.nomeContato,responsavel:r.nomeContato,email1:r.emailC,tel1:r.telC,tipTel1:'celular',estado:r.estado,municipio:r.municipio,tipo:'contato',data:r.data,origem:'Panfletagem',servicos:[],obs:r.obs},...ls]);alert('✅ Lead salvo!');};
   const del=id=>{if(confirm('Excluir registro?'))setPanfletagem(ps=>ps.filter(p=>p.id!==id));};
 
   const cobertura=useMemo(()=>{
