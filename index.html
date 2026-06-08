@@ -161,6 +161,8 @@ tr:hover td{background:var(--bg)}
 input[type=checkbox]{accent-color:var(--vd);width:14px;height:14px;cursor:pointer}
 input[type=date]{cursor:pointer}
 ::-webkit-scrollbar{width:5px;height:5px}
+.toast{position:fixed;bottom:18px;right:18px;background:#1a3a00;color:#9abf4a;font-size:12px;font-weight:600;padding:8px 14px;border-radius:20px;box-shadow:0 2px 12px rgba(0,0,0,.18);z-index:9999;display:flex;align-items:center;gap:6px;animation:toastIn .2s ease;pointer-events:none}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 ::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
 @media(max-width:768px){.sb{transform:translateX(-100%)}.main{margin-left:0}.fr2,.fr3{grid-template-columns:1fr}}
 .gap2{gap:7px}.flex{display:flex}.aic{align-items:center}.jsb{justify-content:space-between}.mt2{margin-top:7px}.mt3{margin-top:11px}.w100{width:100%}.tc{text-align:center}.fw7{font-weight:700}.txl{color:var(--txl)}.col-vd{color:var(--vd)}
@@ -217,6 +219,8 @@ function App(){
   const[loading,setLoading]=useState(true);
   const[page,setPage]=useState('dashboard');
   const[sync,setSync]=useState('');
+  const[toast,setToast]=useState('');
+  const showToast=msg=>{setToast(msg);setTimeout(()=>setToast(''),2500);};
 
   // Dados compartilhados com App1 (lidos do Firebase)
   const[propostas,setPropostas]=useState([]);
@@ -298,17 +302,27 @@ function App(){
     init();
   },[]);
 
-  // ── SALVAR: sempre salva no Firebase E no localStorage ───────────
-  // Firebase = permanente | localStorage = cache para velocidade
-  const save=(chave, setter)=>val=>{
+  // ── SALVAR: Firebase PRIMEIRO, localStorage como cache ─────────
+  const saveToFB=async(chave,val)=>{
+    if(!window._FB){showToast('⚠️ Sem conexão!');return;}
+    try{
+      await window._FB.save(chave,chave,val);
+      LS.set('orv2_'+chave,val);
+      showToast('✅ Salvo no Firebase');
+    }catch(e){
+      showToast('❌ Erro ao salvar!');
+      alert('Erro ao salvar no Firebase: '+e.message+'. Tente novamente!');
+    }
+  };
+  const save=(chave,setter)=>val=>{
     setter(val);
-    LS.set('orv2_'+chave, val);
-    if(window._FB) window._FB.save(chave, chave, val).catch(e=>console.warn('Save erro:',e));
+    LS.set('orv2_'+chave,val);
+    saveToFB(chave,val);
   };
   const saveLeads=val=>{
     setLeads(val);
-    LS.set('orv2_leads2', val);
-    if(window._FB) window._FB.save('leads2','leads2',val).catch(e=>console.warn('Save leads erro:',e));
+    LS.set('orv2_leads2',val);
+    saveToFB('leads2',val);
   };
 
   if(loading) return(
@@ -346,6 +360,7 @@ function App(){
     setNotasPlano:save('notas',setNotasPlano),
     setEmpresa:save('empresa',setEmpresa),
     setPage,
+    showToast,
   };
 
   return(
@@ -395,6 +410,7 @@ function App(){
           {page==='configuracoes'&&<Configuracoes {...sharedProps}/>}
         </div>
       </div>
+      {toast&&<div className="toast">{toast}</div>}
     </div>
   );
 }
