@@ -233,27 +233,64 @@ function App(){
   const[notasPlano,setNotasPlano]=useState(()=>LS.get('orv2_notas',''));
   const[empresa,setEmpresa]=useState(()=>LS.get('orv2_empresa',{nome:'Orvalho Consultoria Ambiental',cnpj:'49.834.540/0001-60',responsavel:'Bianca da Cruz Iéck',crbio:'CRBio 132683/01-D',endereco:'Joinville/SC',tel:'+55 47 99245-4106',site:'https://orvalhoambiental.com.br',instagram:'https://www.instagram.com/orvalhoconsultoriaambiental/'}));
 
+  // ── FUNÇÃO DE CARGA ROBUSTA DO FIREBASE ──────────────────────────
+  // Firebase é SEMPRE a fonte de verdade.
+  // LocalStorage é só cache temporário — nunca substitui o Firebase.
+  const loadFirebase = async () => {
+    setSync('Sincronizando...');
+    try {
+      // 1. Propostas do App1 (cada proposta é um doc separado)
+      const ps = await window._FB.loadAll('proposals');
+      if(ps?.length) {
+        setPropostas(ps);
+        LS.set('orv2_proposals_cache', ps);
+      }
+
+      // 2. Leads (salvo como doc único 'leads2')
+      const ls = await window._FB.load('leads2','leads2');
+      if(ls && Array.isArray(ls)) {
+        setLeads(ls);
+        LS.set('orv2_leads2', ls);
+      }
+
+      // 3. Todos os outros dados do App2
+      const campos = [
+        ['projetos',     setProjetos,     []],
+        ['custos_fixos', setCustosFix,    CF_DEF],
+        ['custos_var',   setCustosVar,    []],
+        ['metas',        setMetas,        {}],
+        ['realizacoes',  setRealizacoes,  {}],
+        ['panfletagem',  setPanfletagem,  []],
+        ['histrem',      setHistorico_rem,[]],
+        ['notas',        setNotasPlano,   ''],
+        ['empresa',      setEmpresa,      {}],
+      ];
+      for(const [chave, setter, def] of campos) {
+        const d = await window._FB.load(chave, chave);
+        if(d !== null && d !== undefined) {
+          setter(d);
+          LS.set('orv2_' + chave, d);
+        }
+      }
+
+      setSync('✓ Sincronizado');
+      setTimeout(() => setSync(''), 3000);
+    } catch(e) {
+      console.error('Erro Firebase:', e);
+      setSync('⚠️ Sem conexão — dados locais');
+    }
+  };
+
   useEffect(()=>{
     const init=()=>{
       if(window._FB){
         window._FB.onAuth(async user=>{
-          setFbUser(user);setAuthed(!!user);setLoading(false);
-          if(user){
-            setSync('Sincronizando...');
-            try{
-              // Carregar propostas do App1
-              const ps=await window._FB.loadAll('proposals');
-              if(ps?.length) setPropostas(ps);
-              // Carregar leads compartilhados
-              const ls=await window._FB.loadAll('leads2');
-              if(ls?.length) setLeads(ls);
-              // Dados exclusivos App2
-              for(const[k,setter] of [['projetos',setProjetos],['custos_fixos',setCustosFix],['custos_var',setCustosVar],['panfletagem',setPanfletagem],['histrem',setHistorico_rem]]){
-                const d=await window._FB.load(k,k);
-                if(d) setter(d);
-              }
-              setSync('✓ Sincronizado');setTimeout(()=>setSync(''),2500);
-            }catch(e){setSync('⚠️ Offline');}
+          setFbUser(user);
+          setAuthed(!!user);
+          setLoading(false);
+          if(user) {
+            // Sempre carrega do Firebase ao fazer login
+            await loadFirebase();
           }
         });
       } else setTimeout(init,300);
@@ -261,9 +298,18 @@ function App(){
     init();
   },[]);
 
-  // Salvar mudanças App2 no Firebase
-  const save=(key,setter)=>val=>{setter(val);LS.set('orv2_'+key,val);if(fbUser&&window._FB) window._FB.save(key,key,val).catch(()=>{});};
-  const saveLeads=val=>{setLeads(val);LS.set('orv2_leads2',val);if(fbUser&&window._FB) window._FB.save('leads2','leads2',val).catch(()=>{});};
+  // ── SALVAR: sempre salva no Firebase E no localStorage ───────────
+  // Firebase = permanente | localStorage = cache para velocidade
+  const save=(chave, setter)=>val=>{
+    setter(val);
+    LS.set('orv2_'+chave, val);
+    if(window._FB) window._FB.save(chave, chave, val).catch(e=>console.warn('Save erro:',e));
+  };
+  const saveLeads=val=>{
+    setLeads(val);
+    LS.set('orv2_leads2', val);
+    if(window._FB) window._FB.save('leads2','leads2',val).catch(e=>console.warn('Save leads erro:',e));
+  };
 
   if(loading) return(
     <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'linear-gradient(135deg,#285d02,#1a3060)',flexDirection:'column',gap:14}}>
